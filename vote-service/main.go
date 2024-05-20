@@ -7,17 +7,17 @@ import (
 	"os/signal"
 	"time"
 
-	protos "github.com/mikestefanello/surveys-microservices/survey-service/protos/survey"
+	protos "github.com/VitaliySynytskyi/microservices-survey-app/survey-service/protos/survey"
 	"google.golang.org/grpc"
 
-	"github.com/mikestefanello/surveys-microservices/vote-service/config"
-	"github.com/mikestefanello/surveys-microservices/vote-service/handler"
-	"github.com/mikestefanello/surveys-microservices/vote-service/logger"
-	"github.com/mikestefanello/surveys-microservices/vote-service/repository"
-	"github.com/mikestefanello/surveys-microservices/vote-service/router"
-	"github.com/mikestefanello/surveys-microservices/vote-service/serializer"
-	"github.com/mikestefanello/surveys-microservices/vote-service/server"
-	"github.com/mikestefanello/surveys-microservices/vote-service/vote"
+	"github.com/VitaliySynytskyi/microservices-survey-app/vote-service/config"
+	"github.com/VitaliySynytskyi/microservices-survey-app/vote-service/handler"
+	"github.com/VitaliySynytskyi/microservices-survey-app/vote-service/logger"
+	"github.com/VitaliySynytskyi/microservices-survey-app/vote-service/repository"
+	"github.com/VitaliySynytskyi/microservices-survey-app/vote-service/router"
+	"github.com/VitaliySynytskyi/microservices-survey-app/vote-service/serializer"
+	"github.com/VitaliySynytskyi/microservices-survey-app/vote-service/server"
+	"github.com/VitaliySynytskyi/microservices-survey-app/vote-service/vote"
 )
 
 func main() {
