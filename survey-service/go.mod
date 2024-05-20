@@ -1,6 +1,6 @@
 module github.com/VitaliySynytskyi/microservices-survey-app/survey-service
 
-go 1.22.3
+go 1.22
 
 require (
 	github.com/go-chi/chi v1.5.5
