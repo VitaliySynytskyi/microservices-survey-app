@@ -1,21 +1,26 @@
+# Use the official Node.js image as the base image
 FROM node:lts-alpine
 
-# install simple http server for serving static content
+# Install a simple HTTP server to serve static content
 RUN npm install -g http-server
 
-# make the 'app' folder the current working directory
+# Set the working directory inside the container to /app
 WORKDIR /app
 
-# copy both 'package.json' and 'package-lock.json' (if available)
+# Copy package.json and package-lock.json (if available) to the working directory
 COPY package*.json ./
 
-# install project dependencies
+# Install project dependencies
 RUN npm install
 
-# copy project files and folders to the current working directory (i.e. 'app' folder)
+# Copy the project files and folders to the working directory
 COPY . .
 
-# build app for production with minification
+# Build the application for production with minification
 RUN NODE_OPTIONS=--openssl-legacy-provider npm run build
 
+# Expose the default port for http-server
+EXPOSE 8080
+
+# Serve the built application using http-server
 CMD [ "http-server", "dist" ]

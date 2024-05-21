@@ -16,7 +16,7 @@ import (
 )
 
 func main() {
-	// Get a logger
+	// Initialize the logger
 	log := logger.NewConsoleLogger()
 
 	// Load application configuration
@@ -26,22 +26,22 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Load the repository based on configuration
+	// Initialize the repository based on the configuration
 	repo, err := repository.NewSurveyRepository(cfg)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Cannot connect to repository")
 		os.Exit(1)
 	}
 
-	// Load the service
+	// Initialize the survey service with the repository
 	service := survey.NewService(repo)
 
-	// Load HTTP dependencies
+	// Set up the HTTP server dependencies
 	httpHandler := handler.NewSurveyHTTPHandler(service, &log)
 	httpRouter := router.NewRouter(httpHandler)
 	httpServer := server.NewHTTPServer(httpRouter, cfg.HTTP)
 
-	// Start the HTTP server
+	// Start the HTTP server in a new goroutine
 	go func() {
 		log.Info().Str("on", httpServer.Addr).Msg("Starting HTTP server")
 		err := httpServer.ListenAndServe()
@@ -51,22 +51,21 @@ func main() {
 		}
 	}()
 
-	// Load gRPC dependencies
+	// Set up the gRPC server dependencies
 	grpcHandler := handler.NewSurveyGrpcHandler(service, &log)
 
 	// Start the gRPC server
 	server.StartGrpcServer(grpcHandler, cfg.Grpc, &log)
 
-	// Listen for sigterm or interupt signals
+	// Set up signal handling for graceful shutdown
 	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-	signal.Notify(c, os.Kill)
+	signal.Notify(c, os.Interrupt, os.Kill)
 
 	// Block until a signal is received
 	sig := <-c
 	log.Warn().Msgf("Signal received: %v", sig)
 
-	// Gracefully shutdown the server allowing up to 30 seconds
+	// Gracefully shutdown the HTTP server, allowing up to 30 seconds
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	httpServer.Shutdown(ctx)

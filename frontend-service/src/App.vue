@@ -1,8 +1,10 @@
 <template>
   <div id="app">
+    <!-- Navbar component for navigation -->
     <app-navbar />
+    <!-- Main content area -->
     <div class="container">
-      <router-view/>
+      <router-view />
     </div>
   </div>
 </template>
@@ -17,3 +19,7 @@ export default {
   }
 }
 </script>
+
+<style>
+/* Global styles for the application can be added here */
+</style>

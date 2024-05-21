@@ -8,26 +8,33 @@ import (
 )
 
 // NewRouter creates a new router
+// This function sets up the router with middleware and routes for the vote service
 func NewRouter(h *handler.VoteHTTPHandler) *chi.Mux {
 	r := chi.NewRouter()
 
-	// CORS
+	// Set up CORS middleware
+	// This middleware allows cross-origin requests from any origin
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins: []string{"*"},
-		AllowedMethods: []string{"GET", "POST", "OPTIONS"},
-		AllowedHeaders: []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		AllowedOrigins:   []string{"*"},                              // Allow all origins
+		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},         // Allow GET, POST, and OPTIONS methods
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"}, // Allow specified headers
+		ExposedHeaders:   []string{"Link"},                           // Expose specified headers
+		AllowCredentials: true,                                       // Allow credentials
+		MaxAge:           300,                                         // Max age for preflight requests
 	}))
 
-	// Vote routes
+	// Set up vote routes
+	// This route group handles all vote-related endpoints
 	r.Route("/vote", func(r chi.Router) {
-		r.Use(middleware.AddSerializer)
-		r.Post("/", h.Vote)
+		r.Use(middleware.AddSerializer) // Add the serializer middleware
+		r.Post("/", h.Vote)             // POST /vote - casts a vote
 	})
 
-	// Results routes
+	// Set up results routes
+	// This route group handles all results-related endpoints
 	r.Route("/results", func(r chi.Router) {
-		r.Use(middleware.AddSerializer)
-		r.Get("/{id}", h.GetResults)
+		r.Use(middleware.AddSerializer) // Add the serializer middleware
+		r.Get("/{id}", h.GetResults)    // GET /results/{id} - retrieves results for a specific survey
 	})
 
 	return r
