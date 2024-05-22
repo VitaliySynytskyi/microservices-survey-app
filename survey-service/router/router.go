@@ -9,18 +9,18 @@ import (
 
 // NewRouter creates a new router
 // This function initializes the router and sets up the routes and middleware
-func NewRouter(h *handler.SurveyHTTPHandler) *chi.Mux {
+func NewRouter(h handler.SurveyHTTPHandler) *chi.Mux {
 	r := chi.NewRouter()
 
 	// Set up CORS middleware
 	// This middleware allows cross-origin requests from any origin
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"*"},                              // Allow all origins
-		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},         // Allow GET, POST, and OPTIONS methods
+		AllowedOrigins:   []string{"*"},                                                       // Allow all origins
+		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},                                  // Allow GET, POST, and OPTIONS methods
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"}, // Allow specified headers
-		ExposedHeaders:   []string{"Link"},                           // Expose specified headers
-		AllowCredentials: true,                                       // Allow credentials
-		MaxAge:           300,                                        // Max age for preflight requests
+		ExposedHeaders:   []string{"Link"},                                                    // Expose specified headers
+		AllowCredentials: true,                                                                // Allow credentials
+		MaxAge:           300,                                                                 // Max age for preflight requests
 	}))
 
 	// Survey routes

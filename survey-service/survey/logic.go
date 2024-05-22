@@ -14,7 +14,7 @@ var (
 	ErrNotFound = errors.New("Survey not found")
 
 	// ErrInvalidRequest indicates that an invalid survey was provided
-	ErrInvalidRequest = errors.New("Invalid survey input")
+	ErrInvalidRequest = errors.New("invalid survey input")
 )
 
 // ErrorResponse provides a structure for error responses

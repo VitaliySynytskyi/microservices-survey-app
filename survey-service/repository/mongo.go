@@ -85,7 +85,7 @@ func (r *mongoSurveyRepository) Load() (*survey.Surveys, error) {
 	defer cancel()
 
 	surveys := make(survey.Surveys, 0)
-	opts := options.Find().SetSort(bson.D{{"createdAt", -1}}).SetLimit(25)
+	opts := options.Find().SetSort(bson.D{{Key: "createdAt", Value: -1}}).SetLimit(25)
 	cursor, err := r.getCollection().Find(ctx, bson.M{}, opts)
 	if err != nil {
 		return nil, err

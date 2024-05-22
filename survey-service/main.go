@@ -38,7 +38,7 @@ func main() {
 
 	// Set up the HTTP server dependencies
 	httpHandler := handler.NewSurveyHTTPHandler(service, &log)
-	httpRouter := router.NewRouter(httpHandler)
+	httpRouter := router.NewRouter(*httpHandler)
 	httpServer := server.NewHTTPServer(httpRouter, cfg.HTTP)
 
 	// Start the HTTP server in a new goroutine
