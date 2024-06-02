@@ -18,6 +18,7 @@ type VoteHTTPHandler struct {
 }
 
 // NewVoteHTTPHandler creates a new vote HTTP handler
+// This function initializes a new VoteHTTPHandler with the given service and logger
 func NewVoteHTTPHandler(service vote.Service, log *zerolog.Logger) *VoteHTTPHandler {
 	return &VoteHTTPHandler{
 		service,
@@ -77,6 +78,7 @@ func (h *VoteHTTPHandler) GetResults(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	h.log.Info().Str("id", id).Msg("GET request received: GetResults")
 
+	// Retrieve the results for the given survey ID
 	results, err := h.service.GetResults(id)
 	if err != nil {
 		if errors.Is(err, vote.ErrResultsNotFound) {
@@ -106,6 +108,7 @@ func (h *VoteHTTPHandler) GetSerializer(r *http.Request) vote.Serializer {
 }
 
 // Response sends an HTTP response
+// This function sets the content type and writes the response
 func (h *VoteHTTPHandler) Response(w http.ResponseWriter, r *http.Request, output []byte, code int) {
 	w.Header().Set("Content-Type", h.GetSerializer(r).GetContentType())
 	w.WriteHeader(code)
@@ -113,6 +116,7 @@ func (h *VoteHTTPHandler) Response(w http.ResponseWriter, r *http.Request, outpu
 }
 
 // Error sends an HTTP error response
+// This function encodes and sends an error response
 func (h *VoteHTTPHandler) Error(w http.ResponseWriter, r *http.Request, message string, code int) {
 	serializer := h.GetSerializer(r)
 	output, err := serializer.EncodeErrorResponse(vote.ErrorResponse{Error: message})

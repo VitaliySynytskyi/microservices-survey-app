@@ -33,13 +33,7 @@ func (h *SurveyHTTPHandler) Get(w http.ResponseWriter, r *http.Request) {
 	// Load the requested survey
 	item, err := h.service.LoadByID(id)
 	if err != nil {
-		if errors.Is(err, survey.ErrNotFound) {
-			h.log.Debug().Str("id", id).Msg("Survey not found")
-			h.Error(w, r, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-		} else {
-			h.log.Error().Err(err).Str("id", id).Msg("Unable to load survey")
-			h.Error(w, r, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		}
+		handleGetError(h, w, r, id, err)
 		return
 	}
 
@@ -53,6 +47,19 @@ func (h *SurveyHTTPHandler) Get(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h.Response(w, r, json, http.StatusOK)
+}
+
+// handleGetError handles errors during Get requests
+// Code Smell: Long Method
+// Refactoring: Extract Method to handle error responses for Get
+func handleGetError(h *SurveyHTTPHandler, w http.ResponseWriter, r *http.Request, id string, err error) {
+	if errors.Is(err, survey.ErrNotFound) {
+		h.log.Debug().Str("id", id).Msg("Survey not found")
+		h.Error(w, r, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+	} else {
+		h.log.Error().Err(err).Str("id", id).Msg("Unable to load survey")
+		h.Error(w, r, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+	}
 }
 
 // Collection handles get requests to return a collection of surveys
@@ -103,13 +110,7 @@ func (h *SurveyHTTPHandler) Post(w http.ResponseWriter, r *http.Request) {
 	// Save the survey
 	err = h.service.Insert(s)
 	if err != nil {
-		if errors.Is(err, survey.ErrInvalidRequest) {
-			h.log.Debug().Err(err).Msg("Invalid survey data in POST")
-			h.Error(w, r, err.Error(), http.StatusUnprocessableEntity)
-		} else {
-			h.log.Error().Err(err).Msg("Unable to save survey")
-			h.Error(w, r, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		}
+		handlePostError(h, w, r, err)
 		return
 	}
 
@@ -124,6 +125,19 @@ func (h *SurveyHTTPHandler) Post(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h.Response(w, r, res, http.StatusCreated)
+}
+
+// handlePostError handles errors during Post requests
+// Code Smell: Long Method
+// Refactoring: Extract Method to handle error responses for Post
+func handlePostError(h *SurveyHTTPHandler, w http.ResponseWriter, r *http.Request, err error) {
+	if errors.Is(err, survey.ErrInvalidRequest) {
+		h.log.Debug().Err(err).Msg("Invalid survey data in POST")
+		h.Error(w, r, err.Error(), http.StatusUnprocessableEntity)
+	} else {
+		h.log.Error().Err(err).Msg("Unable to save survey")
+		h.Error(w, r, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+	}
 }
 
 // GetSerializer gets a serializer from the request, which is added via middleware
