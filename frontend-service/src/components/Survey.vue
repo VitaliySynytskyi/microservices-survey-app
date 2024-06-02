@@ -5,7 +5,7 @@
         <router-link tag="a" class="text-primary" :to="{ name: 'Survey', params: { id: survey.id }}">{{ survey.name }}</router-link>
       </div>
       <div class="card-body">
-        <div v-if="errorMessage" class="alert alert-danger">{{ errorMessage }}</div> 
+        <div v-if="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
         <div v-if="statusMessage" class="alert alert-success">{{ statusMessage }}</div>
         <template v-if="showQuestions">
           <div v-for="question in survey.questions" :key="question.id" class="form-check">
@@ -45,76 +45,68 @@
 </template>
 
 <script>
-  export default {
-    data() {
-      return {
-        selectedQuestion: "",
-        showQuestions: true,
-        results: [],
-        statusMessage: "",
-        errorMessage: "",
-      }
-    },
-    props: {
-      survey: Object
-    },
-    methods: {
-      vote() {
-        this.errorMessage = "";
-        this.statusMessage = "";
+export default {
+  props: {
+    survey: Object
+  },
+  data() {
+    return {
+      selectedQuestion: "",
+      showQuestions: true,
+      results: [],
+      statusMessage: "",
+      errorMessage: "",
+    };
+  },
+  methods: {
+    vote() {
+      this.errorMessage = "";
+      this.statusMessage = "";
 
-        let body = {
-          survey: this.survey.id,
-          question: this.selectedQuestion,
-        }
+      const body = {
+        survey: this.survey.id,
+        question: this.selectedQuestion,
+      };
 
-        // TODO: Make this URL controlled via env variable
-        fetch('http://localhost:8082/vote', {
-          method: "POST",
-          body: JSON.stringify(body),
-          headers: {"Content-type": "application/json"}
+      // TODO: Make this URL controlled via env variable
+      fetch('http://localhost:8082/vote', {
+        method: "POST",
+        body: JSON.stringify(body),
+        headers: { "Content-type": "application/json" }
+      })
+        .then(res => res.json())
+        .then(() => {
+          // TODO: Check status code
+          this.statusMessage = "Your vote has been recorded!";
+          this.selectedQuestion = null;
         })
-          .then(res => res.json())
-          .then(() => {
-            // TODO: Check status code
-            this.statusMessage = "Your vote has been recorded!";
-            this.selectedQuestion = false
-          })
-          .catch(error => {
-            this.errorMessage = "Vote request failed. Please try again.";
-            console.log(error);
-          });
-      },
-      getResults() {
-        this.errorMessage = "";
-        this.statusMessage = "";
+        .catch(error => {
+          this.errorMessage = "Vote request failed. Please try again.";
+          console.error(error);
+        });
+    },
+    getResults() {
+      this.errorMessage = "";
+      this.statusMessage = "";
 
-        // TODO: Make this URL controlled via env variable
-        fetch('http://localhost:8082/results/' + this.survey.id)
-          .then(res => res.json())
-          .then(data => {
-            this.results = [];
-            for (let i in this.survey.questions) {
-              this.results[i] = this.survey.questions[i];
-              this.results[i].votes = 0;
-
-              for (let n in data.results) {
-                if (data.results[n].question == this.survey.questions[i].id) {
-                  this.results[i].votes = data.results[n].votes;
-                  break;
-                }
-              }
-            }
-          })
-          .catch(error => {
-            this.errorMessage = "Cannot get survey results. Please try again.";
-            console.log(error);
-          });
-      },
-      viewResults() {
-        this.getResults();
-        this.showQuestions = false;
-      }
+      // TODO: Make this URL controlled via env variable
+      fetch(`http://localhost:8082/results/${this.survey.id}`)
+        .then(res => res.json())
+        .then(data => {
+          this.results = this.survey.questions.map(question => ({
+            ...question,
+            votes: data.results.find(result => result.question === question.id)?.votes || 0
+          }));
+        })
+        .catch(error => {
+          this.errorMessage = "Cannot get survey results. Please try again.";
+          console.error(error);
+        });
+    },
+    viewResults() {
+      this.getResults();
+      this.showQuestions = false;
     }
   }
+};
 </script>

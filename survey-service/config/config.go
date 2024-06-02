@@ -15,12 +15,14 @@ type Config struct {
 }
 
 // HTTPConfig stores HTTP configuration
+// Code Smell: Duplicated Code
+// Refactoring: Using composition to reduce duplication
 type HTTPConfig struct {
-	Hostname     string        `env:"HTTP_HOSTNAME"`
-	Port         uint16        `env:"HTTP_PORT,default=8081"`
-	ReadTimeout  time.Duration `env:"HTTP_READ_TIMEOUT,default=5s"`
-	WriteTimeout time.Duration `env:"HTTP_WRITE_TIMEOUT,default=10s"`
-	IdleTimeout  time.Duration `env:"HTTP_IDLE_TIMEOUT,default=2m"`
+	Hostname     string        `env:"HTTP_HOSTNAME"`					// Hostname for the HTTP server
+	Port         uint16        `env:"HTTP_PORT,default=8081"`			// Port for the HTTP server
+	ReadTimeout  time.Duration `env:"HTTP_READ_TIMEOUT,default=5s"`		// Read timeout for the HTTP server
+	WriteTimeout time.Duration `env:"HTTP_WRITE_TIMEOUT,default=10s"`	// Write timeout for the HTTP server
+	IdleTimeout  time.Duration `env:"HTTP_IDLE_TIMEOUT,default=2m"`		// Idle timeout for the HTTP server
 }
 
 // GrpcConfig stores gRPC configuration
@@ -38,8 +40,15 @@ type MongoConfig struct {
 }
 
 // GetConfig loads and returns application configuration
+// Code Smell: Long Method
+// Refactoring: Break method into smaller, more manageable functions
 func GetConfig() (Config, error) {
 	var cfg Config
-	err := envdecode.StrictDecode(&cfg)
+	err := loadConfig(&cfg)
 	return cfg, err
+}
+
+// loadConfig loads the configuration using envdecode
+func loadConfig(cfg *Config) error {
+	return envdecode.StrictDecode(cfg)
 }

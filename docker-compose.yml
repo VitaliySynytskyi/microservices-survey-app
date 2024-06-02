@@ -8,6 +8,7 @@ services:
     depends_on:
       - surveys
       - votes
+
   surveys:
     build: ./survey-service/
     environment:
@@ -15,9 +16,17 @@ services:
     ports:
       - "8081:8081"
     depends_on:
-      - survey_storage
+      survey_storage:
+        condition: service_healthy
+
   survey_storage:
-    image: mongo
+    image: mongo:4.4
+    healthcheck:
+      test: ["CMD-SHELL", "mongo --eval 'db.runCommand(\"ping\").ok'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
   votes:
     build: ./vote-service/
     restart: on-failure
@@ -31,6 +40,7 @@ services:
       - surveys
       - vote_queue
       - vote_storage
+
   vote_queue:
     image: rabbitmq:3-management
     healthcheck:
@@ -38,6 +48,7 @@ services:
       interval: 5s
       timeout: 15s
       retries: 1
+
   vote_worker:
     build: ./vote-worker-service/
     restart: on-failure
@@ -47,6 +58,7 @@ services:
     depends_on:
       - vote_queue
       - vote_storage
+
   vote_storage:
     image: postgres:alpine
     volumes:
