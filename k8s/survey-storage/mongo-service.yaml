@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: survey-storage
+  namespace: survey-app
+spec:
+  selector:
+    app: survey-storage
+  ports:
+  - port: 27017
+    targetPort: 27017
+  clusterIP: None 
