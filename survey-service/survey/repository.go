@@ -14,4 +14,12 @@ type Repository interface {
 	// Load loads all surveys
 	// This method retrieves all surveys from the repository
 	Load() (*Surveys, error)
+
+	// Update updates an existing survey
+	// This method updates a survey in the repository
+	Update(survey *Survey) error
+
+	// Delete deletes a survey by ID
+	// This method deletes a survey from the repository
+	Delete(id string) error
 }

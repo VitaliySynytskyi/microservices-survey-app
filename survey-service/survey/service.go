@@ -9,9 +9,33 @@ type Service interface {
 
 	// LoadByID loads a survey by ID
 	// This method retrieves a survey from the repository by its unique ID
-	LoadByID(id string) (*Survey, error)
+	LoadByID(id string) (*SurveyWithStatus, error)
 
 	// Load loads all surveys
 	// This method retrieves all surveys from the repository
-	Load() (*Surveys, error)
+	Load() ([]SurveyWithStatus, error)
+
+	// LoadActive loads all active surveys that haven't expired
+	// This method retrieves all active non-expired surveys
+	LoadActive() ([]SurveyWithStatus, error)
+
+	// Update updates an existing survey
+	// This method updates a survey in the repository
+	Update(id string, survey *Survey) error
+
+	// ActivateSurvey activates a survey
+	// This method sets a survey to active
+	ActivateSurvey(id string) error
+
+	// DeactivateSurvey deactivates a survey
+	// This method sets a survey to inactive
+	DeactivateSurvey(id string) error
+
+	// SetExpirationDate sets the expiration date for a survey
+	// This method sets when a survey will expire
+	SetExpirationDate(id string, expiresAt int64) error
+
+	// DeleteSurvey deletes a survey by ID
+	// This method removes a survey from the repository
+	DeleteSurvey(id string) error
 }

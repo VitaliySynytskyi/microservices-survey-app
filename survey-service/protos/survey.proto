@@ -3,6 +3,15 @@ syntax = "proto3";
 service Survey {
   // GetSurvey returns the requested survey
   rpc GetSurvey(SurveyRequest) returns (SurveyResponse);
+  
+  // GetActiveSurveys returns all active surveys
+  rpc GetActiveSurveys(ActiveSurveysRequest) returns (SurveysResponse);
+  
+  // GetSurveys returns all surveys
+  rpc GetSurveys(SurveysRequest) returns (SurveysResponse);
+  
+  // ValidateSurvey validates a survey and question
+  rpc ValidateSurvey(SurveyValidationRequest) returns (SurveyValidationResponse);
 }
 
 // SurveyRequest defines the request for a survey
@@ -11,16 +20,62 @@ message SurveyRequest {
   string Id = 1;
 }
 
+// ActiveSurveysRequest defines the request for active surveys
+message ActiveSurveysRequest {
+  // Empty request
+}
+
+// SurveysRequest defines the request for all surveys
+message SurveysRequest {
+  // Empty request
+}
+
+// SurveyValidationRequest defines the request for survey validation
+message SurveyValidationRequest {
+  // SurveyId is the survey ID
+  string SurveyId = 1;
+  // QuestionId is the question ID
+  int32 QuestionId = 2;
+}
+
+// SurveyValidationResponse contains the validation result
+message SurveyValidationResponse {
+  // Valid indicates if the survey and question are valid
+  bool Valid = 1;
+  // Message contains an error message if not valid
+  string Message = 2;
+  // QuestionType is the type of question
+  string QuestionType = 3;
+}
+
 // SurveyResponse contains the requested survey
 message SurveyResponse {
   // Id is the survey ID
   string Id = 1;
   // Name is the survey name
   string Name = 2;
+  // Description is the survey description
+  string Description = 3;
   // Questions is a list of questions
-  repeated QuestionResponse Questions = 3;
+  repeated QuestionResponse Questions = 4;
   // CreatedAt is the timestamp of when the survey was created
-  int64 CreatedAt = 4;
+  int64 CreatedAt = 5;
+  // ExpiresAt is the timestamp of when the survey will expire
+  int64 ExpiresAt = 6;
+  // Active indicates if the survey is active
+  bool Active = 7;
+  // Status is the current status of the survey
+  string Status = 8;
+  // AllowAnonymous indicates if anonymous responses are allowed
+  bool AllowAnonymous = 9;
+  // ThankYouMessage is the message shown after completion
+  string ThankYouMessage = 10;
+}
+
+// SurveysResponse contains multiple surveys
+message SurveysResponse {
+  // Surveys is a list of surveys
+  repeated SurveyResponse Surveys = 1;
 }
 
 // QuestionResponse contains a question from a given survey
@@ -29,4 +84,56 @@ message QuestionResponse {
   int32 Id = 1;
   // Text is the question text
   string Text = 2;
+  // Type is the question type
+  string Type = 3;
+  // Required indicates if an answer is required
+  bool Required = 4;
+  // Options is a list of options for choice-based questions
+  repeated OptionResponse Options = 5;
+  // Media is the optional media attachment
+  MediaResponse Media = 6;
+  // MinValue is the minimum value for scale questions
+  optional int32 MinValue = 7;
+  // MaxValue is the maximum value for scale questions
+  optional int32 MaxValue = 8;
+  // ConditionalLogic is the conditional display logic
+  ConditionalLogicResponse ConditionalLogic = 9;
+  // Placeholder text for text questions
+  string Placeholder = 10;
+  // HelpText is additional help text for the question
+  string HelpText = 11;
+}
+
+// OptionResponse contains an option for a question
+message OptionResponse {
+  // Id is the option ID
+  int32 Id = 1;
+  // Text is the option text
+  string Text = 2;
+  // Image is an optional image URL for the option
+  string Image = 3;
+}
+
+// MediaResponse contains media information
+message MediaResponse {
+  // Type is the media type
+  string Type = 1;
+  // Url is the media URL
+  string Url = 2;
+  // Caption is the optional media caption
+  string Caption = 3;
+}
+
+// ConditionalLogicResponse contains conditional logic for a question
+message ConditionalLogicResponse {
+  // Type is the conditional logic type
+  string Type = 1;
+  // SourceQuestionId is the ID of the source question
+  int32 SourceQuestionId = 2;
+  // SourceOptionId is the ID of the option that triggers the condition
+  int32 SourceOptionId = 3;
+  // SourceValue is the value that triggers the condition
+  string SourceValue = 4;
+  // Operator is the comparison operator
+  string Operator = 5;
 }

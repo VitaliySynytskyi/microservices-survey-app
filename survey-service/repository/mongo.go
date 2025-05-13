@@ -95,3 +95,42 @@ func (r *mongoSurveyRepository) Load() (*survey.Surveys, error) {
 	err = cursor.All(ctx, &surveys)
 	return &surveys, err
 }
+
+// Update updates an existing survey in the MongoDB collection
+func (r *mongoSurveyRepository) Update(s *survey.Survey) error {
+	ctx, cancel := r.contextWithTimeout()
+	defer cancel()
+
+	filter := bson.M{"id": s.ID}
+	update := bson.M{"$set": s}
+
+	result, err := r.getCollection().UpdateOne(ctx, filter, update)
+	if err != nil {
+		return err
+	}
+
+	if result.MatchedCount == 0 {
+		return survey.ErrNotFound
+	}
+
+	return nil
+}
+
+// Delete removes a survey by ID from the MongoDB collection
+func (r *mongoSurveyRepository) Delete(id string) error {
+	ctx, cancel := r.contextWithTimeout()
+	defer cancel()
+
+	filter := bson.M{"id": id}
+
+	result, err := r.getCollection().DeleteOne(ctx, filter)
+	if err != nil {
+		return err
+	}
+
+	if result.DeletedCount == 0 {
+		return survey.ErrNotFound
+	}
+
+	return nil
+}

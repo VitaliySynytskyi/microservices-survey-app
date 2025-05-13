@@ -3,17 +3,29 @@ package survey
 // Serializer contains functions to encode and decode surveys
 // This interface defines the methods required for serializing and deserializing survey data
 type Serializer interface {
-	// Encode encodes a survey
-	// This method converts a survey into a byte slice (e.g., JSON)
-	Encode(survey *Survey) ([]byte, error)
+	// Encode encodes a survey with status
+	// This method converts a survey with status into a byte slice (e.g., JSON)
+	Encode(survey *SurveyWithStatus) ([]byte, error)
 
-	// EncodeMultiple encodes multiple surveys
-	// This method converts a collection of surveys into a byte slice (e.g., JSON)
-	EncodeMultiple(surveys *Surveys) ([]byte, error)
+	// EncodeMultiple encodes multiple surveys with status
+	// This method converts a collection of surveys with status into a byte slice (e.g., JSON)
+	EncodeMultiple(surveys []SurveyWithStatus) ([]byte, error)
+
+	// EncodeSurvey encodes a survey without status
+	// This method converts a survey into a byte slice (e.g., JSON)
+	EncodeSurvey(survey *Survey) ([]byte, error)
 
 	// EncodeErrorResponse encodes an error response
 	// This method converts an error response into a byte slice (e.g., JSON)
 	EncodeErrorResponse(er ErrorResponse) ([]byte, error)
+
+	// EncodeSurveyResponse encodes a survey response
+	// This method converts a survey response into a byte slice (e.g., JSON)
+	EncodeSurveyResponse(sr SurveyResponse) ([]byte, error)
+
+	// EncodeSurveysResponse encodes a surveys response
+	// This method converts a surveys response into a byte slice (e.g., JSON)
+	EncodeSurveysResponse(sr SurveysResponse) ([]byte, error)
 
 	// Decode decodes a survey
 	// This method converts a byte slice into a survey (e.g., from JSON)

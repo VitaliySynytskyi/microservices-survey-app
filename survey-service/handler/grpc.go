@@ -32,13 +32,24 @@ func (g *SurveyGrpcHandler) GetSurvey(ctx context.Context, r *protos.SurveyReque
 	}
 
 	// Build survey response
-	res := buildSurveyResponse(s)
+	res := &protos.SurveyResponse{
+		Id:        s.ID,
+		Name:      s.Name,
+		CreatedAt: s.CreatedAt,
+	}
+
+	// Add questions to the response
+	for _, q := range s.Questions {
+		res.Questions = append(res.Questions, &protos.QuestionResponse{
+			Id:   int32(q.ID),
+			Text: q.Text,
+		})
+	}
+
 	return res, nil
 }
 
 // handleSurveyError handles errors during survey loading
-// Code Smell: Long Method
-// Refactoring: Extract Method to handle error logging
 func handleSurveyError(log *zerolog.Logger, id string, err error) (*protos.SurveyResponse, error) {
 	if errors.Is(err, survey.ErrNotFound) {
 		log.Debug().Str("id", id).Msg("Survey not found")
@@ -46,22 +57,4 @@ func handleSurveyError(log *zerolog.Logger, id string, err error) (*protos.Surve
 		log.Error().Err(err).Str("id", id).Msg("Unable to load survey")
 	}
 	return nil, err
-}
-
-// buildSurveyResponse builds the response from the survey data
-// Code Smell: Long Method
-// Refactoring: Extract Method to build survey response
-func buildSurveyResponse(s *survey.Survey) *protos.SurveyResponse {
-	res := &protos.SurveyResponse{
-		Id:        s.ID,
-		Name:      s.Name,
-		CreatedAt: s.CreatedAt,
-	}
-	for _, q := range s.Questions {
-		res.Questions = append(res.Questions, &protos.QuestionResponse{
-			Id:   int32(q.ID),
-			Text: q.Text,
-		})
-	}
-	return res
 }

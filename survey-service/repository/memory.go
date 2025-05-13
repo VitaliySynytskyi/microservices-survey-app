@@ -3,56 +3,88 @@ package repository
 import (
 	"sort"
 	"sync"
-	"time"
 
 	"github.com/VitaliySynytskyi/microservices-survey-app/survey-service/survey"
 )
 
-type surveyMemoryRepository struct {
-	storage map[string]*survey.Survey
-	mutex   *sync.RWMutex
+// memorySurveyRepository implements the survey.Repository interface using an in-memory store
+type memorySurveyRepository struct {
+	surveys map[string]*survey.Survey
+	mu      sync.RWMutex
 }
 
-// NewSurveyMemoryRepository creates a new survey repository that stores in memory
+// NewSurveyMemoryRepository creates a new in-memory survey repository
 func NewSurveyMemoryRepository() (survey.Repository, error) {
-	return &surveyMemoryRepository{
-		storage: make(map[string]*survey.Survey),
-		mutex:   &sync.RWMutex{},
+	return &memorySurveyRepository{
+		surveys: make(map[string]*survey.Survey),
 	}, nil
 }
 
-// Insert adds a new survey to the in-memory storage
-func (r *surveyMemoryRepository) Insert(s *survey.Survey) error {
-	r.mutex.Lock()
-	defer r.mutex.Unlock()
-	r.storage[s.ID] = s
+// Insert adds a new survey to the in-memory store
+func (r *memorySurveyRepository) Insert(s *survey.Survey) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	r.surveys[s.ID] = s
 	return nil
 }
 
-// LoadByID retrieves a survey by its ID from the in-memory storage
-func (r *surveyMemoryRepository) LoadByID(id string) (*survey.Survey, error) {
-	r.mutex.RLock()
-	defer r.mutex.RUnlock()
-	if survey, ok := r.storage[id]; ok {
-		return survey, nil
+// LoadByID retrieves a survey by its ID from the in-memory store
+func (r *memorySurveyRepository) LoadByID(id string) (*survey.Survey, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	if s, ok := r.surveys[id]; ok {
+		return s, nil
 	}
 	return nil, survey.ErrNotFound
 }
 
-// Load retrieves all surveys from the in-memory storage
-func (r *surveyMemoryRepository) Load() (*survey.Surveys, error) {
-	r.mutex.RLock()
-	defer r.mutex.RUnlock()
-	surveys := make(survey.Surveys, 0, len(r.storage))
+// Load retrieves all surveys from the in-memory store
+func (r *memorySurveyRepository) Load() (*survey.Surveys, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
 
-	for _, item := range r.storage {
-		surveys = append(surveys, item)
+	// Convert the map to a slice
+	surveys := make(survey.Surveys, 0, len(r.surveys))
+	for _, s := range r.surveys {
+		surveys = append(surveys, s)
 	}
 
-	// Sort surveys by CreatedAt in descending order
+	// Sort by creation time, newest first
 	sort.Slice(surveys, func(i, j int) bool {
-		return time.Unix(surveys[i].CreatedAt, 0).After(time.Unix(surveys[j].CreatedAt, 0))
+		return surveys[i].CreatedAt > surveys[j].CreatedAt
 	})
 
 	return &surveys, nil
+}
+
+// Update updates an existing survey in the in-memory store
+func (r *memorySurveyRepository) Update(s *survey.Survey) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	// Check if the survey exists
+	if _, ok := r.surveys[s.ID]; !ok {
+		return survey.ErrNotFound
+	}
+
+	// Update the survey
+	r.surveys[s.ID] = s
+	return nil
+}
+
+// Delete removes a survey by ID from the in-memory store
+func (r *memorySurveyRepository) Delete(id string) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	// Check if the survey exists
+	if _, ok := r.surveys[id]; !ok {
+		return survey.ErrNotFound
+	}
+
+	// Delete the survey
+	delete(r.surveys, id)
+	return nil
 }

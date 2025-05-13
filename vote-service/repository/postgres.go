@@ -94,12 +94,12 @@ func (p *postgresResultsRepository) processRows(rows pgx.Rows, surveyID string) 
 			return results, err
 		}
 
-		// Add the results for this question
-		result := vote.Result{
-			Question: question,
-			Votes:    votes,
+		// Add the results for this question - convert Result to QuestionResults
+		questionResults := vote.QuestionResults{
+			Question:   question,
+			TotalVotes: votes,
 		}
-		results.Results = append(results.Results, result)
+		results.Results = append(results.Results, questionResults)
 
 		// Update the last update time
 		if results.UpdatedAt < lastUpdate {
