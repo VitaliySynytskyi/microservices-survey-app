@@ -3,6 +3,8 @@ import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import SurveyForm from '../forms/Survey.vue'
 import Survey from '../views/Survey.vue'
+import Analytics from '../views/Analytics.vue'
+import Auth from '../views/Auth.vue'
 
 Vue.use(VueRouter)
 
@@ -32,6 +34,24 @@ const routes = [
     meta: {
       title: 'View Survey',
       transition: 'slide'
+    }
+  },
+  {
+    path: '/analytics',
+    name: 'Analytics',
+    component: Analytics,
+    meta: {
+      title: 'Analytics Dashboard',
+      transition: 'fade'
+    }
+  },
+  {
+    path: '/auth',
+    name: 'Auth',
+    component: Auth,
+    meta: {
+      title: 'Login & Register',
+      transition: 'fade'
     }
   },
   {
